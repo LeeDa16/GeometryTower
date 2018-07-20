@@ -1,19 +1,28 @@
 let CameraCtl = require('CameraCtl');
 let ShapeCtl = require('ShapeCtl');
 let NextShapeCtl = require('NextShapeCtl');
+let CLineCtl = require('ContourLineCtl');
+
 cc.Class({
     extends: cc.Component,
 
     properties: {
         bottom: 0,
         targetHeight:600,
+        bonusLine: {
+            default: [],
+            type: Array,
+        }
     },
 
 
     onLoad () {
         cc.director.getPhysicsManager().enabled = true;
+        this.screenSize = cc.view.getVisibleSize();
+
         this.camera = this.node.getChildByName('Camera');
         this.cameraCtl = this.camera.addComponent(CameraCtl);
+        this.cameraCtl.gameCtl = this;
         
         this.shapeNode = new cc.Node();
         this.node.addChild(this.shapeNode);
@@ -26,20 +35,50 @@ cc.Class({
         this.nextShape = this.node.getChildByName('NextShape');
         this.nextShapeCtl = this.nextShape.getComponent(NextShapeCtl);
         this.nextShapeCtl.changeSpriteFrame(this.nextShapeIndex);
+        /*
+        this.cLine = new cc.Node();
+        this.camera.addChild(this.cLine);
+        this.cLineCtl = this.cLine.addComponent(CLineCtl);
+        //this.cLineCtl.drawDashLine(0, 300, 300, 300);
+        let lineBegin = this.camera.convertToNodeSpaceAR()
+        */
+
+        this.bonusLine.push(400);
+        this.bonusLine.push(500);
+        this.bonusLine.push(600);
+
+        /*
+        for (let i = 0; i < this.bonusLine.length; ++i) {
+            let bLine = new cc.Node('bonusline_' + i);
+            this.camera.addChild(bLine);
+            let lineCtl = bLine.addComponent(CLineCtl);
+            let beginPoint = this.camera.convertToNodeSpaceAR(cc.p(0, this.bonusLine[i]));
+            let endPoint = this.camera.convertToNodeSpaceAR(cc.p(this.screenSize.width, this.bonusLine[i]));
+            lineCtl.drawDashLine(beginPoint, endPoint);
+        }
+        */
+
+        this.dynamicLine = new cc.Node('dynamicline');
+        this.camera.addChild(this.dynamicLine);
+        this.dLineCtl = this.dynamicLine.addComponent(CLineCtl);
+        let beginPoint = this.camera.convertToNodeSpaceAR(cc.p(0, 0));
+        let endPoint = this.camera.convertToNodeSpaceAR(cc.p(this.screenSize.width, 0));
+        this.dLineCtl.drawDashLine(beginPoint, endPoint);
+        this.dynamicLine.opacity = 0;
+
     },
 
     nextTurn() {
         let position = this.node.convertToWorldSpaceAR(this.shapeNode.getPosition());
         this.shapeNode.removeFromParent();
         this.camera.addChild(this.shapeNode);
-        //this.shapeNode.y -= this.camera.y;
         this.shapeNode.setPosition(this.camera.convertToNodeSpaceAR(position));
         
         if (this.shapeCtl.getHeight() > this.targetHeight) {
             this.pass();
         }
 
-        this.cameraCtl.changeFocus(this.shapeCtl.getHeightToWorld());
+        this.cameraCtl.moveFocus(this.shapeCtl.getHeightToWorld());
         //TODO:
         let index = 0;
         this.createNewShape(this.nextShapeIndex);
@@ -58,6 +97,10 @@ cc.Class({
         this.shapeCtl = this.shapeNode.addComponent(ShapeCtl);
         this.shapeCtl.setShape(index);
         this.shapeCtl.gameCtl = this;
+    },
+
+    focusMovingStop() {
+        this.dLineCtl.moveUp(this.cameraCtl.focusHeight - this.camera.convertToWorldSpaceAR(this.dynamicLine.getPosition()).y);
     },
 
     gameStop() {

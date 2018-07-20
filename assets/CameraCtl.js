@@ -19,7 +19,12 @@ cc.Class({
         fps: 60,
         zoomSpeed: 0,
         focusHeight: 300,
-        finalHeight:600,
+        finalHeight: 600,
+        //deltaY: 0,
+        gameCtl: {
+            default: null,
+            type: cc.Component,
+        }
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -34,21 +39,12 @@ cc.Class({
 
         console.log('load canvas controller');
         this.originalY = this.node.getPosition().y;
-        //this.accelerationY = -10;
-
-        //this.body = this.node.addComponent(cc.RigidBody);
-        //this.body.gravityScale = 0;
-        //this.body.type = cc.RigidBodyType.Static;
-
-        //this.ctx = this.node.addComponent(cc.Graphics);
-
         this.state = State.still;
-
-        //this.moveDown();
     },
 
     moveDown(deltaY) {
         console.log('move down');
+        //this.deltaY = deltaY;
         this.state = State.movingDown;
         this.accelerationY = 50;
 
@@ -74,7 +70,7 @@ cc.Class({
         this.speedY = 0;
     },
 
-    changeFocus(currentHeight) {
+    moveFocus(currentHeight) {
         if (currentHeight > this.focusHeight) {
             this.moveDown(currentHeight - this.focusHeight);
         }
@@ -87,6 +83,7 @@ cc.Class({
     update (dt) {
         if (this.state === State.movingDown && this.speedY >= 0) {
             this.stopMoving();
+            this.gameCtl.focusMovingStop();
         }
 
         if (this.state === State.movingUp) {
