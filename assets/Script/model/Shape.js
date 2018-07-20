@@ -27,31 +27,37 @@ cc.Class({
     properties: {
         isStatic:[false, false, false],
         state:0,
+        cnt: 0,
+        _active: true,
     },
 
     ctor () {
         this.sprite = this.addComponent(cc.Sprite);
         this.body = this.addComponent(cc.RigidBody);
         this.collider = this.addComponent(cc.PhysicsPolygonCollider);
-        this.collider.restriction = 0.2;
-        this.collider.friction = 1;
-        this.body.gravityScale = 0;
-        this.body.angularDamping = 0.9;
     },
 
-    init(gameCtl, index) {
-        this.gameCtl = gameCtl;
+    init(index) {
+        this.collider.restriction = 0;
+        this.collider.friction = 1;
+        this.body.gravityScale = 0;
+        this.body.angularDamping = 1;
+
         let i = index + 1;
         cc.loader.loadRes('shapes/shapesheet', cc.SpriteAtlas, function(err, atlas) {
             let frame = atlas.getSpriteFrame('shape_'+i);
             this.sprite.spriteFrame = frame;
         }.bind(this));
+
         this.collider.points = points[index].map((elem)=>(cc.p(elem[0], elem[1])));
         this.collider.apply();
+
+        this.addTouchEvent();
     },
 
     addTouchMoveEvent(event) {
         let touchPoint = this.parent.convertToNodeSpace(event.getLocation());
+        console.log('touch move');
         this.x = touchPoint.x;
         console.log('touch move');
     },
@@ -65,34 +71,50 @@ cc.Class({
     },
 
     addTouchEvent() {
-        this.parent.on(cc.Node.EventType.TOUCH_MOVE, this.addTouchMoveEvent, this);
-        this.parent.on(cc.Node.EventType.TOUCH_END, this.addTouchEndEvent, this);
+        this.on(cc.Node.EventType.TOUCH_MOVE, this.addTouchMoveEvent, this);
+        this.on(cc.Node.EventType.TOUCH_END, this.addTouchEndEvent, this);
             
-        /*
-        this.parent.on(cc.Node.EventType.MOUSE_MOVE, (event) => {
-            let mousePoint = this.parent.convertToNodeSpace(event.getLocation());
-            this.x = mousePoint.x;
-        });
-        */
     },
 
     removeTouchEvent() {
         console.log('remove touch event');
-        this.parent.off(cc.Node.EventType.TOUCH_MOVE, this.addTouchMoveEvent, this);
-        this.parent.off(cc.Node.EventType.TOUCH_END, this.addTouchEndEvent, this);
+        this.off(cc.Node.EventType.TOUCH_MOVE, this.addTouchMoveEvent, this);
+        this.off(cc.Node.EventType.TOUCH_END, this.addTouchEndEvent, this);
     },
 
-    moveDown() {
-        this.body.type = cc.RigidBodyType.Dynamic;
-        this.gravityScale = -1;
-        this.linearVelocity = 
+    isReleased() {
+        return this.state === 1;
+    },
+
+    movingStop() {
+        return this.isStatic[0] === true && this.isStatic[1] === true && this.isStatic[2] === true;
+    },
+
+    getCurrentHeight() {
+        let rect = this.getBoundingBoxToWorld();
+        return rect.y + rect.height;
     },
     
+
     start() {
 
     },
 
     update(dt) {
-        console.log('shape update');
+        if (this.isReleased()) {
+            this.removeTouchEvent();
+
+            if (this.movingStop()) {
+                this.body.type = cc.RigidBodyType.Static;
+                this._active = false;
+                this.state = 2;
+                this.cnt = 0;
+            } else {
+                if (this.body.linearVelocity.x === 0 && this.body.linearVelocity.y === 0) {
+                    this.isStatic[this.cnt++] = true;
+                }
+            }
+        }
+        //console.log('shape update');
     }
 });
