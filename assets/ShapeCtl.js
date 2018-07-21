@@ -22,20 +22,21 @@ let points = [[[-61.5, 0], [30, 0], [30, -28.5], [61.5, -28.5], [61.5, 28.5], [-
 [[-45, 15], [-45, -15], [45, -15], [45, 15]], 
 [[-61, 15], [-61, -15], [61, -15], [61, 15]]];
 
+module.exports.points = points;
+
 let State = {
     ready: 0,
     released: 1,
     stop: 2,
 };
 
-cc.Class({
+module.exports.ShapeCtl = cc.Class({
     extends: cc.Component,
 
     properties: {
     },
 
     onLoad () {
-    	console.log('shape controller loaded');
         this.state = State.ready;
         this.eventRemoved = false;
 
@@ -72,12 +73,11 @@ cc.Class({
 
     removeTouchEvent() {
         this.eventRemoved = true;
-        console.log('remove touch event');
     },
 
     addTouchMoveEvent(event) {
     	if (!this.eventRemoved) {
-     	   let touchPoint = this.node.parent.convertToNodeSpaceAR(event.getLocation());
+     	   	let touchPoint = this.node.parent.convertToNodeSpaceAR(event.getLocation());
         	this.node.x = touchPoint.x;
     	}
     },
@@ -86,7 +86,6 @@ cc.Class({
         this.body.gravityScale = 1;
         this.body.linearVelocity = cc.p(0, -100);
         this.state = State.released;
-        console.log('touch end');
     },
 
     isStopped() {
@@ -98,9 +97,31 @@ cc.Class({
         return rect.y + rect.height;
     },
 
+    convertCoordinate(point) {
+    	let len = Math.sqrt(point.x * point.x + point.y * point.y);
+    	let atan;
+    	if (point.x != 0) {
+    		atan = Math.atan(point.y / point.x);
+    	} else {
+    		atan = Math.PI / 2;
+    	}
+
+    	if (point.x < 0) {
+    		atan += Math.PI;
+    	}
+
+    	let rotation = atan - this.node.rotation * Math.PI / 180;
+    	//let x = len * Math.cos(rotation) + this.node.x;
+    	let y = len * Math.sin(rotation) + this.node.y;
+    	return y;
+    },
+
     getHeight() {
+    	let pointsY = this.collider.points.map(this.convertCoordinate.bind(this));
     	let rect = this.node.getBoundingBox();
-    	return rect.y + rect.height;
+    	console.log(pointsY, rect);
+    	return Math.max.apply(null, pointsY);
+    	//return rect.y + rect.height;
     },
 
     update (dt) {
@@ -109,13 +130,12 @@ cc.Class({
         }
 
         if (this.state === State.released && this.isStopped()) {
-        	console.log("stop move");
             this.body.type = cc.RigidBodyType.Static;
             this.state = State.stop;
             this.gameCtl.nextTurn();
         }
 
-        if (this.getHeightToWorld() < this.gameCtl.bottom) {
+        if (!this.isStopped() && this.getHeightToWorld() < this.gameCtl.bottom) {
         	this.gameCtl.gameStop();
         }
     },

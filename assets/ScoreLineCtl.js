@@ -28,6 +28,7 @@ cc.Class({
 
     update (dt) {
         if (this.deltaY < 0) {
+            this.node.y += this.deltaY;
             this.stopMoving();
         }
         this.node.y += this.speedY / this.fps;

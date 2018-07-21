@@ -338,7 +338,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Table",
+    "_name": "Base",
     "_objFlags": 0,
     "_parent": {
       "__id__": 8
@@ -371,7 +371,7 @@
     "_anchorPoint": {
       "__type__": "cc.Vec2",
       "x": 0.5,
-      "y": 0
+      "y": 1
     },
     "_contentSize": {
       "__type__": "cc.Size",
@@ -385,7 +385,7 @@
     "_position": {
       "__type__": "cc.Vec2",
       "x": 0,
-      "y": 0
+      "y": 160
     },
     "_skewX": 0,
     "_skewY": 0,
@@ -460,7 +460,7 @@
     "_offset": {
       "__type__": "cc.Vec2",
       "x": 0,
-      "y": 80
+      "y": -80
     },
     "_size": {
       "__type__": "cc.Size",
@@ -514,7 +514,7 @@
     "_position": {
       "__type__": "cc.Vec2",
       "x": 0,
-      "y": 2.842170943040401e-14
+      "y": 160
     },
     "_skewX": 0,
     "_skewY": 0,
@@ -608,7 +608,7 @@
     "_position": {
       "__type__": "cc.Vec2",
       "x": -150,
-      "y": 0
+      "y": 160
     },
     "_skewX": 0,
     "_skewY": 0,
@@ -679,6 +679,9 @@
     "bottom": -320,
     "targetHeight": 0,
     "bonusLine": [],
-    "score": 0
+    "score": 0,
+    "actualHeight": 0,
+    "visibleHeight": 0,
+    "focusHeight": 300
   }
 ]

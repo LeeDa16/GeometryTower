@@ -44,8 +44,6 @@ cc.Class({
     },
 
     moveDown(deltaY) {
-        console.log('move down');
-        console.log(deltaY);
         //this.deltaY = deltaY;
         this.state = State.movingDown;
         this.accelerationY = 50;
@@ -54,7 +52,6 @@ cc.Class({
     },
 
     moveUp() {
-        console.log('move up');
         this.state = State.movingUp;
         this.accelerationY = -50;
         this.speedY = Math.sqrt(2 * Math.abs(this.accelerationY * (this.currentY - this.originalY)));
@@ -86,7 +83,7 @@ cc.Class({
     update (dt) {
         if (this.state === State.movingDown && this.speedY >= 0) {
             this.stopMoving();
-            this.gameCtl.focusMovingStop();
+            //this.gameCtl.focusMovingStop();
         }
 
         if (this.state === State.movingUp) {

@@ -27,14 +27,13 @@ cc.Class({
     },
 
     updateScore() {
-        console.log(this.node.y - this.gameCtl.cameraCtl.currentY + this.gameCtl.camera.y);
-        this.score = parseInt((this.node.y - (this.gameCtl.cameraCtl.currentY - this.gameCtl.camera.y)) / 10);
-        this.gameCtl.score = this.score;
+        this.score = parseInt((this.node.y - this.gameCtl.base.y) / 10);
         this.label.string = this.score;
     },
 
     update (dt) {
         if (this.deltaY < 0) {
+            this.node.y += this.deltaY;
             this.stopMoving();
         }
         this.node.y += this.speedY / this.fps;
