@@ -26,9 +26,10 @@ cc.Class({
     },
 
     moveUp(deltaY) {
+        console.log(this.node.y);
         if (deltaY > 0) {
             this.deltaY = deltaY;
-            this.speedY = 50;
+            this.speedY = 60;
             this.deltaOpacity = 255 / (deltaY / this.speedY);
         }
     },
@@ -37,6 +38,7 @@ cc.Class({
         this.deltaY = 0;
         this.speedY = 0;
         this.deltaOpacity = -255;
+        console.log(this.node.y);
     },
 
     start () {
@@ -50,9 +52,9 @@ cc.Class({
         if (this.node.opacity <= 0) {
             this.deltaOpacity = 0;
         }
-        this.node.y += this.speedY;
-        this.deltaY -= this.speedY;
-        this.node.opacity += this.deltaOpacity;
+        this.node.y += this.speedY / this.fps;
+        this.deltaY -= this.speedY / this.fps;
+        this.node.opacity += this.deltaOpacity / this.fps;
     },
 
 });

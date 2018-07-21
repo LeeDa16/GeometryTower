@@ -51,7 +51,7 @@ cc.Class({
         
         this.addTouchEvent();
 
-        this.node.setPosition(cc.p(0, 280));
+        this.node.setPosition(cc.p(0, 200));
     },
 
     setShape(index) {
@@ -100,7 +100,6 @@ cc.Class({
 
     getHeight() {
     	let rect = this.node.getBoundingBox();
-    	console.log(rect)
     	return rect.y + rect.height;
     },
 
@@ -113,7 +112,6 @@ cc.Class({
         	console.log("stop move");
             this.body.type = cc.RigidBodyType.Static;
             this.state = State.stop;
-            //this.gameCtl.createNewShape();
             this.gameCtl.nextTurn();
         }
 

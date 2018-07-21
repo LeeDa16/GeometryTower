@@ -16,6 +16,7 @@ cc.Class({
         speedY: 0,
         accelerationX: 0,
         accelerationY: 0,
+        accelerationS: 0,
         fps: 60,
         zoomSpeed: 0,
         focusHeight: 300,
@@ -37,13 +38,14 @@ cc.Class({
             console.log('canvas touch end event');
         });
 
-        console.log('load canvas controller');
         this.originalY = this.node.getPosition().y;
+        this.currentY = this.node.getPosition().y;
         this.state = State.still;
     },
 
     moveDown(deltaY) {
         console.log('move down');
+        console.log(deltaY);
         //this.deltaY = deltaY;
         this.state = State.movingDown;
         this.accelerationY = 50;
@@ -54,12 +56,13 @@ cc.Class({
     moveUp() {
         console.log('move up');
         this.state = State.movingUp;
-        this.accelerationY = -10;
-        this.speedY = Math.sqrt(2 * Math.abs(this.accelerationY * (this.node.position.y - this.originalY)));
-        
-        let deltaScale = 1 - this.finalHeight / this.targetHeight;
-        //this.zoomSpeed = -Math.sqrt(2 * Math.abs(this.node.position.y / this.accelerationY));
-        this.zoomSpeed = -0.1;
+        this.accelerationY = -50;
+        this.speedY = Math.sqrt(2 * Math.abs(this.accelerationY * (this.currentY - this.originalY)));
+
+        let deltaScale = 0.4;
+        this.accelerationS = deltaScale / (this.currentY - this.originalY) * this.accelerationY;
+        this.zoomSpeed = -Math.sqrt(2 * Math.abs(this.accelerationS * deltaScale));
+        //this.zoomSpeed = -0.1;
     },
 
     stopMoving() {
@@ -90,14 +93,20 @@ cc.Class({
             if (this.speedY <= 0) {
                 this.stopMoving();
             } else {
+                if (this.zoomSpeed >= 0) {
+                    this.zoomSpeed = 0;
+                    this.accelerationS = 0;
+                }
+                this.zoomSpeed += this.accelerationS / this.fps;
                 this.node.scale += this.zoomSpeed / this.fps;
             }
         }
         this.speedX += this.accelerationX / this.fps;
         this.speedY += this.accelerationY / this.fps;
 
-        this.node.x += this.speedX / this.fps;
-        this.node.y += this.speedY / this.fps;
+        //this.node.x += this.speedX / this.fps;
+        //this.node.y += this.speedY / this.fps;
+        this.currentY += this.speedY / this.fps;
         let children = this.node.getChildren();
         for (let i = 0; i < children.length; ++i) {
             children[i].x += this.speedX / this.fps;

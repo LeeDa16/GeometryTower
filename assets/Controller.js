@@ -2,6 +2,8 @@ let CameraCtl = require('CameraCtl');
 let ShapeCtl = require('ShapeCtl');
 let NextShapeCtl = require('NextShapeCtl');
 let CLineCtl = require('ContourLineCtl');
+let ScoreLineCtl = require('ScoreLineCtl');
+let ScoreCtl = require('ScoreCtl');
 
 cc.Class({
     extends: cc.Component,
@@ -12,7 +14,8 @@ cc.Class({
         bonusLine: {
             default: [],
             type: Array,
-        }
+        },
+        score: 0,
     },
 
 
@@ -35,13 +38,6 @@ cc.Class({
         this.nextShape = this.node.getChildByName('NextShape');
         this.nextShapeCtl = this.nextShape.getComponent(NextShapeCtl);
         this.nextShapeCtl.changeSpriteFrame(this.nextShapeIndex);
-        /*
-        this.cLine = new cc.Node();
-        this.camera.addChild(this.cLine);
-        this.cLineCtl = this.cLine.addComponent(CLineCtl);
-        //this.cLineCtl.drawDashLine(0, 300, 300, 300);
-        let lineBegin = this.camera.convertToNodeSpaceAR()
-        */
 
         this.bonusLine.push(400);
         this.bonusLine.push(500);
@@ -57,15 +53,13 @@ cc.Class({
             lineCtl.drawDashLine(beginPoint, endPoint);
         }
         */
+        this.scoreLine = this.camera.getChildByName('ScoreLine');
+        this.scoreLineCtl = this.scoreLine.getComponent(ScoreLineCtl);
+        this.scoreLine.opacity = 0;
 
-        this.dynamicLine = new cc.Node('dynamicline');
-        this.camera.addChild(this.dynamicLine);
-        this.dLineCtl = this.dynamicLine.addComponent(CLineCtl);
-        let beginPoint = this.camera.convertToNodeSpaceAR(cc.p(0, 0));
-        let endPoint = this.camera.convertToNodeSpaceAR(cc.p(this.screenSize.width, 0));
-        this.dLineCtl.drawDashLine(beginPoint, endPoint);
-        this.dynamicLine.opacity = 0;
-
+        this.scoreText = this.camera.getChildByName('Score');
+        this.scoreCtl = this.scoreText.getComponent(ScoreCtl);
+        this.scoreCtl.gameCtl = this;
     },
 
     nextTurn() {
@@ -100,12 +94,15 @@ cc.Class({
     },
 
     focusMovingStop() {
-        this.dLineCtl.moveUp(this.cameraCtl.focusHeight - this.camera.convertToWorldSpaceAR(this.dynamicLine.getPosition()).y);
+        console.log(this.scoreLine.getPosition());
+        this.scoreLineCtl.moveUp(this.cameraCtl.focusHeight - this.scoreLine.y);
+        this.scoreCtl.moveUp(this.cameraCtl.focusHeight - this.scoreText.y);
     },
 
     gameStop() {
         console.log('game stop');
         this.shapeNode.destroy();
+        this.scoreText.destroy();
         //this.camera.y -= 50;
         this.cameraCtl.moveUp();
     },
