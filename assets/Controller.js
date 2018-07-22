@@ -19,6 +19,12 @@ cc.Class({
         actualHeight: 0,
         visibleHeight: 0,
         focusHeight: 300,
+        starScore: 0,
+        starPrefab: {
+            default: null,
+            type: cc.Prefab,
+        },
+        starNum: 3,
     },
 
 
@@ -32,7 +38,7 @@ cc.Class({
 
         this.base = this.camera.getChildByName('Base');
         
-        this.shapeNode = new cc.Node();
+        this.shapeNode = new cc.Node('Shape');
         this.node.addChild(this.shapeNode);
         
         this.shapeCtl = this.shapeNode.addComponent(ShapeCtl);
@@ -65,6 +71,24 @@ cc.Class({
         this.scoreText = this.camera.getChildByName('Score');
         this.scoreCtl = this.scoreText.getComponent(ScoreCtl);
         this.scoreCtl.gameCtl = this;
+
+        for (let i = 0; i < this.starNum; ++i) {
+            let star = cc.instantiate(this.starPrefab);
+            this.camera.addChild(star);
+            star.setPosition(this.getStarPosition());
+            star.getComponent('StarCtl').gameCtl = this;
+        }
+
+        for (let i = 0; i < this.starNum; ++i) {
+            let star = cc.instantiate(this.starPrefab);
+            star.name = 'StarScore_' + i;
+            this.node.addChild(star);
+            star.getComponent(cc.RigidBody).enabledContactListener = false;
+            let firstX = -star.width / 2 * (this.starNum - 1);
+            let thisX = firstX + i * star.width;
+            star.setPosition(cc.p(thisX, 280));
+            star.opacity = 100;
+        }
 
         this.visibleHeight = this.base.height;
     },
@@ -115,7 +139,7 @@ cc.Class({
     },
 
     createNewShape(index) {
-        this.shapeNode = new cc.Node();
+        this.shapeNode = new cc.Node('Shape');
         this.node.addChild(this.shapeNode);
         this.shapeCtl = this.shapeNode.addComponent(ShapeCtl);
         this.shapeCtl.setShape(index);
@@ -158,6 +182,25 @@ cc.Class({
         this.nextShape.destroy();
         //this.camera.y -= 50;
         this.cameraCtl.moveUp();
+        while (this.currentBonus !== this.bonusLine.length) {
+            this.camera.getChildByName('bonusline_' + this.currentBonus).destroy();
+            this.currentBonus++;
+        }
+        for (let i = 0; i < this.starNum; ++i) {
+            this.node.getChildByName('StarScore_' + i).destroy();
+        }
+    },
+
+    addStarScore() {
+        this.node.getChildByName('StarScore_' + this.starScore).opacity = 255;
+        this.starScore++;
+
+    },
+
+    getStarPosition() {
+        let randX = Math.random() * 300 - 150;
+        let randY = Math.random() * 1200 + 160;
+        return cc.p(randX, randY);
     },
 
     pass(){},

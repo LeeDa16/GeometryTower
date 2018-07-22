@@ -682,6 +682,11 @@
     "score": 0,
     "actualHeight": 0,
     "visibleHeight": 0,
-    "focusHeight": 300
+    "focusHeight": 300,
+    "starScore": 0,
+    "starPrefab": {
+      "__uuid__": "6465acd2-dc6b-4a47-b45c-a0a890208845"
+    },
+    "starNum": 3
   }
 ]
